@@ -1,0 +1,11 @@
+# Compiled Java files
+*.class
+*.jar
+
+# Build directories created by Java/VS Code
+bin/
+out/
+target/
+
+# VS Code editor settings
+.vscode/

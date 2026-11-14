@@ -1,48 +1,91 @@
 import java.util.Scanner; 
 
 public class GoddessBattle {
-    public static void main(String[] args) throws Exception {
-        Scanner scanner = new Scanner(System.in); 
-        System.out.println("Welcome to the Goddess Battle Game!");
-        System.out.println("You are the Moon Goddess, and you will battle against the Sun Goddess.");
-        System.out.println("Both goddesses start with 100 HP and 5 resources.");
-        System.out.println("You can perform the following actions:");
-        System.out.println("1. Attack (10 damage)");
-        System.out.println("2. Special Attack (15 damage, costs 3 resources)");
-        System.out.println("3. Defend (reduces incoming damage by 5)");
-        System.out.println("4. Recover (restores 3 resources, max 10)");
-        System.out.println("5. Exit the game (and lose)");
-        System.out.println("The game ends when either goddess's HP reaches 0.");
-        System.out.println("Good luck!");
+    private static class BattleResult {
+        private final boolean won;
+        private final int playerHP;
+        private final int playerResource;
 
+        //@pre (0 <= playerHP <= 100) && (0 <= playerResource <= 10)
+        //@post (this.won == won) && (this.playerHP == playerHP) && (this.playerResource == playerResource)
+        private BattleResult(boolean won, int playerHP, int playerResource) {
+            this.won = won;
+            this.playerHP = playerHP;
+            this.playerResource = playerResource;
+        }
+        public boolean isWon() {
+            return won;
+        }
+        public int getPlayerHP() {
+            return playerHP;
+        }
+        public int getPlayerResource() {
+            return playerResource;
+        }
+    }
+
+    //@pre (0 <= HP <= 100) && (0 <= resource <= 10)
+    //@post (result.won ⟺ the enemy was defeated) && (result.playerHP == player's remaining HP) && (result.playerResource == player's remaining resource)
+    private static BattleResult startBattle(Scanner scanner, int HP, int resource) {
         GoddessGame game = new GoddessGame();
-        boolean GameEnd = false;
-        while (!GameEnd){
+        game.setPlayerHP(HP);
+        game.setPlayerResource(resource);
+        String[] WinnerArr = new String[]{"You have defeated the enemy! You win!", "You have been defeated by the enemy! You lose!"};
+
+        while (true){
             System.out.println("--------------------------------------------------------------------------");
             System.out.println("Choose an action: 1. Attack 2. Special Attack 3. Defend 4. Recover 5. Exit");
             int choice = scanner.nextInt();
+            int status = 0;
             if (choice == 1) {
-                GameEnd = game.Attak(10);
+                status = game.attack();
             }
             else if (choice == 2) {
-                GameEnd = game.SpecialAttack();
+                status= game.specialAttack();
             }
             else if (choice == 3) {
-                GameEnd = game.defend();
+                status = game.defend();
             }
             else if (choice == 4) {
-                GameEnd = game.recover();
+                status = game.recover();
             }
             else if (choice == 5) {
                 System.out.println("Exiting the game.");
-                GameEnd = true;
+                status = 2;
             }
             else {
                 System.out.println("Invalid choice. Please try again.");
             }
+            if (status == 1 || status == 2) {
+                System.out.println(WinnerArr[status - 1]);
+                System.out.println("Game Over.");
+                game.gameStatus();
+                System.out.println("--------------------------------------------------------------------------");
+                return new BattleResult(
+                        status == 1,
+                        game.getPlayerHP(),
+                        game.getPlayerResource());
+            }
         }
-        System.out.println("--------------------------------------------------------------------------");
-        System.out.println("Game Over!");
-        scanner.close();
+    }
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        BattleResult firstEncounter = startBattle(scanner, 100, 5);
+        if (!firstEncounter.isWon()) {
+            System.out.println("Encounter 1 was lost. The game ends.");
+        }else {
+            System.out.println("Encounter 1 won! Starting Encounter 2.");
+            BattleResult secondEncounter = startBattle(
+                    scanner,
+                    firstEncounter.getPlayerHP(),
+                    firstEncounter.getPlayerResource());
+            if (secondEncounter.isWon()) {
+                System.out.println("Overall victory! You won both encounters!");
+            } else {
+                System.out.println("Encounter 2 was lost. The game ends.");
+            }
+        }
+
     }
 }

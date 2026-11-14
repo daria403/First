@@ -1,65 +1,91 @@
 public class GoddessGame {
-    private Goddess MoonGoddess;
-    private Goddess SunGoddess;
+    private final PlayerGoddess player;
+    private final EnemyGoddess enemy;
 
     public GoddessGame() {
-        this.MoonGoddess = new Goddess();
-        this.SunGoddess = new Goddess();
-    }
-    public void GameStatus() {
-        System.out.println("Moon Goddess HP: " + MoonGoddess.getHP() + ", Resource: " + MoonGoddess.getResource());
-        System.out.println("Sun Goddess HP: " + SunGoddess.getHP() + ", Resource: " + SunGoddess.getResource());
-    }
-    public boolean Attak(int damage) {
-        SunGoddess.setHP(SunGoddess.getHP() - damage);
-        System.out.println("You attacked sun goddess for " + damage + " damage!");
-        if (SunGoddess.getHP() <= 0) {
-            System.out.println();   
-            System.out.println("Sun goddess has been defeated (You win!)");
-            return true;
-        } else {
-            GameStatus();
-        }
-        return CounterAttack(10);
-    }
-    public boolean CounterAttack(int damage) {
-        MoonGoddess.setHP(MoonGoddess.getHP() - damage);
-        System.out.println();
-        System.out.println("Sun goddess Counter-attacked you for " + damage + " damage!");
-        if (MoonGoddess.isDefeated()) {
-            System.out.println();
-            System.out.println("Moon goddess has been defeated (You lose!)");
-            return true;
-        } else {
-            GameStatus();
-        }
-        return false;
-    }
-    public boolean SpecialAttack() {
-        if (MoonGoddess.getResource() >= 3) {
-            MoonGoddess.setResource(MoonGoddess.getResource() - 3);
-            System.out.println("Performing special attack!");
-            System.out.println();
-            return Attak(15);
-        } else {
-            System.out.println("You don't have enough resources for special attack!");
-            return false;
-        }
-    }
-    public boolean defend() {
-        System.out.println("Defending against the next attack!");
-        System.out.println();
-        return CounterAttack(5);
-    }
-    public boolean recover() {
-        System.out.println("Recovering resources!");
-        System.out.println();
-        int NewResource = MoonGoddess.getResource() + 3;
-        if (NewResource > 10) {
-            NewResource = 10;
-        }
-        MoonGoddess.setResource(NewResource);
-        return CounterAttack(10);
+        this.player = new PlayerGoddess();
+        this.enemy = new EnemyGoddess();
     }
 
+    //@pre 0 <= HP <= 100
+    //@post this.player.HP == HP
+    public void setPlayerHP(int HP) {
+        player.setHP(HP);
+    }
+
+    //@pre 0 <= resource <= 10
+    //@post this.player.Resource == resource
+    public void setPlayerResource(int resource) {
+        player.setResource(resource);
+    }
+
+    public int getPlayerHP() {
+        return player.getHP();
+    }
+
+    public int getPlayerResource() {
+        return player.getResource();
+    }
+
+    public int getEnemyHP() {
+        return enemy.getHP();
+    }
+
+    public void gameStatus() {
+        System.out.println("Player HP: " + player.getHP() + ", Resource: " + player.getResource());
+        System.out.println("Enemy HP: " + enemy.getHP());
+    }
+
+    public int attack() {
+        return attack(player.getAttackDamage());
+    }
+
+    private int attack(int damage) {
+        enemy.takeDamage(damage);
+        System.out.println("You attacked the enemy for " + damage + " damage!");
+        if (enemy.isDefeated()) {
+            System.out.println();
+            System.out.println("The enemy has been defeated (You win!)");
+            return 1;
+        }
+        gameStatus();
+        return counterAttack(enemy.getAttackDamage());
+    }
+
+    public int counterAttack(int damage) {
+        player.takeDamage(damage);
+        System.out.println();
+        System.out.println("The enemy counter-attacked you for " + damage + " damage!");
+        if (player.isDefeated()) {
+            System.out.println();
+            System.out.println("You have been defeated (You lose!)");
+            return 2;
+        }
+        gameStatus();
+        return 0;
+    }
+
+    public int specialAttack() {
+        if (player.getResource() >= 3) {
+            player.setResource(player.getResource() - 3);
+            System.out.println("Performing special attack!");
+            System.out.println();
+            return attack(15);
+        }
+        System.out.println("You don't have enough resources for special attack!");
+        return 0;
+    }
+
+    public int defend() {
+        System.out.println("Defending against the next attack!");
+        System.out.println();
+        return counterAttack(Math.max(0, enemy.getAttackDamage() - 5));
+    }
+
+    public int recover() {
+        System.out.println("Recovering resources!");
+        System.out.println();
+        player.setResource(Math.min(10, player.getResource() + 3));
+        return counterAttack(enemy.getAttackDamage());
+    }
 }

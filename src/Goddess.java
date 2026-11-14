@@ -1,36 +1,28 @@
-public class Goddess {
+public abstract class Goddess {
     private int HP;
-    private int resource;
 
-    public Goddess() {
+    protected Goddess() {
         this.HP = 100;
-        this.resource = 5;
     }
- 
+
     public int getHP() {
         return HP;
     }
 
-    public void setHP(int HP){
-    if (0 <= HP && HP <= 100) {
-            this.HP = HP;
-        } else {
-        System.out.println("HP must be between 0 and 100.");
-        }
+    //@pre 0 <= HP <= 100
+    //@post this.HP == HP
+    public void setHP(int HP) {
+        this.HP = HP;
     }
 
-    public int getResource() {
-        return resource;
+    //@pre 0 <= damage
+    //@post this.HP == this.HP - damage
+    public void takeDamage(int damage) {
+        this.HP -= damage;
     }
 
-    public void setResource(int resource) {
-        if (0 <= resource && resource <= 10) {
-            this.resource = resource;
-        } else {
-            System.out.println("Resource must be between 0 and 10.");
-        }
-        this.resource = resource;
-    }
+    public abstract int getAttackDamage();
+
     public boolean isDefeated() {
         return HP <= 0;
     }

@@ -18,6 +18,11 @@ public class GoddessGame {
     public void setPlayerResource(int resource) {
         player.setResource(resource);
     }
+    //@pre 0 <= HP <= 100
+    //@post this.enemy.HP == HP
+    public void setEnemyHP(int HP) {
+        enemy.setHP(HP);
+    }
 
     public int getPlayerHP() {
         return player.getHP();
@@ -40,7 +45,7 @@ public class GoddessGame {
         return attack(player.getAttackDamage());
     }
 
-    private int attack(int damage) {
+    public int attack(int damage) {
         enemy.takeDamage(damage);
         System.out.println("You attacked the enemy for " + damage + " damage!");
         if (enemy.isDefeated()) {

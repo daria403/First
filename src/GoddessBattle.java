@@ -24,12 +24,13 @@ public class GoddessBattle {
         }
     }
 
-    //@pre (0 <= HP <= 100) && (0 <= resource <= 10)
+    //@pre (0 <= PlayerHP <= 100) && (0 <= PlayerResource <= 10)
     //@post (result.won ⟺ the enemy was defeated) && (result.playerHP == player's remaining HP) && (result.playerResource == player's remaining resource)
-    private static BattleResult startBattle(Scanner scanner, int HP, int resource) {
+    private static BattleResult startBattle(Scanner scanner, int PlayerHP, int PlayerResource,int EnemyHP,boolean PlayerPower) {
         GoddessGame game = new GoddessGame();
-        game.setPlayerHP(HP);
-        game.setPlayerResource(resource);
+        game.setPlayerHP(PlayerHP);
+        game.setPlayerResource(PlayerResource);
+        game.setEnemyHP(EnemyHP);
         String[] WinnerArr = new String[]{"You have defeated the enemy! You win!", "You have been defeated by the enemy! You lose!"};
 
         while (true){
@@ -38,7 +39,11 @@ public class GoddessBattle {
             int choice = scanner.nextInt();
             int status = 0;
             if (choice == 1) {
-                status = game.attack();
+                if (PlayerPower){
+                    status = game.attack(12);
+                }else{
+                    status = game.attack();
+                }
             }
             else if (choice == 2) {
                 status= game.specialAttack();
@@ -71,15 +76,32 @@ public class GoddessBattle {
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-        BattleResult firstEncounter = startBattle(scanner, 100, 5);
+        BattleResult firstEncounter = startBattle(scanner, 100, 5, 30,false);
         if (!firstEncounter.isWon()) {
             System.out.println("Encounter 1 was lost. The game ends.");
         }else {
             System.out.println("Encounter 1 won! Starting Encounter 2.");
+            boolean PlayerPower = false;
+            int newHP = firstEncounter.getPlayerHP();
+            while (true) {
+                System.out.println("Please choose your prize for winning Encounter 1: 1. Power (Attack Damage +2)  2. Recovery (HP +25)");
+                int PrizeChoice = scanner.nextInt();
+                if (PrizeChoice == 1) {
+                    PlayerPower = true;
+                    break; // Valid choice, exit the reward loop
+                } else if (PrizeChoice == 2) {
+                    newHP = Math.min(100, newHP + 25);
+                    break; // Valid choice, exit the reward loop
+                } else {
+                    System.out.println("Invalid reward choice. Please try again."); //[cite: 14]
+                }
+            }
             BattleResult secondEncounter = startBattle(
                     scanner,
-                    firstEncounter.getPlayerHP(),
-                    firstEncounter.getPlayerResource());
+                    newHP,
+                    firstEncounter.getPlayerResource(),
+                    45,
+                    PlayerPower);
             if (secondEncounter.isWon()) {
                 System.out.println("Overall victory! You won both encounters!");
             } else {
